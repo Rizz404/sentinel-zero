@@ -38,7 +38,7 @@ jobs:
           sleep ${DELAY}m
 
       - name: Run Sentinel
-        run: npx tsx index.tsx
+        run: npx tsx index.ts
 
       - name: Commit Log
         run: |
