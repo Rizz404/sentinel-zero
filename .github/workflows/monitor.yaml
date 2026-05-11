@@ -13,8 +13,11 @@ jobs:
   monitor-job:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "24"
 
@@ -35,7 +38,7 @@ jobs:
           sleep ${DELAY}m
 
       - name: Run Sentinel
-        run: npx ts-node index.ts
+        run: npx tsx index.tsx
 
       - name: Commit Log
         run: |
