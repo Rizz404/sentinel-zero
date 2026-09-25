@@ -2,8 +2,8 @@ name: Sentinel-Zero Monitor
 
 on:
   schedule:
-    # Berjalan setiap 4 jam
-    - cron: "0 */4 * * *"
+    # Berjalan setiap 4 jam (menit :23, hindari :00 yang paling sering ditunda GitHub)
+    - cron: "23 */4 * * *"
   workflow_dispatch:
 
 permissions:
@@ -25,11 +25,14 @@ jobs:
         run: npm install
 
       - name: Random Jitter & Probabilistic Run
+        id: gate
         # Kita tambahkan logika: 20% kemungkinan workflow ini 'skip' biar commit gak terlalu kaku
+        # (exit 0 cuma menghentikan step ini, jadi step berikutnya di-skip lewat output `skip`)
         run: |
           CHANCE=$(( RANDOM % 100 ))
           if [ $CHANCE -lt 20 ]; then
             echo "Skipping this run for more 'natural' activity."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -38,9 +41,11 @@ jobs:
           sleep ${DELAY}m
 
       - name: Run Sentinel
+        if: steps.gate.outputs.skip != 'true'
         run: npx tsx index.ts
 
       - name: Commit Log
+        if: steps.gate.outputs.skip != 'true'
         run: |
           git config --global user.name "Rizz404"
           git config --global user.email "109719910+Rizz404@users.noreply.github.com"
